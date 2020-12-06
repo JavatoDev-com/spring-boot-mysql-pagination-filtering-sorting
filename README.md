@@ -1,7 +1,7 @@
 # Spring Boot Pagination, Sorting and Filtering
 
 <a href="https://javatodev.com/spring-boot-mysql/" target="blank">
-    <img align="center" src="https://javatodev.com/wp-content/uploads/2020/10/Spring-Boot-REST-API-Using-JPA-Hibernate-MySQL-Tutorial-800x450.png" alt="Spring Boot REST API Using JPA, Hibernate, MySQL Tutorial"/></a>
+    <img align="center" src="" alt="Spring Boot REST API Using JPA, Hibernate, MySQL Tutorial"/></a>
 
 <p align="left">
 In this article, I’m going to explain how we can build a REST API using JPA, Hibernate, and MySQL in Spring Boot.
