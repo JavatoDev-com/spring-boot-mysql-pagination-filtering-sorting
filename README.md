@@ -11,13 +11,14 @@ can use the same with MongoDB or any other database you would like.
 
 Technologies going to use,
 
-Java 1.8
-Spring Boot 2.3.4 RELEASE
-JPA
-MySQL
-Lombok
-Gradle
-IntelliJ Idea for IDE
+- Java 1.8
+- Spring Boot 2.3.4 RELEASE
+- JPA
+- MySQL
+- Lombok
+- Gradle
+- IntelliJ Idea for IDE
+
 Main topics I’m going to discuss here,
 
 - What is Pagination, Sorting and Filtering
