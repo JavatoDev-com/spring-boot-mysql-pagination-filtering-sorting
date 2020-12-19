@@ -24,6 +24,8 @@ public class Book {
 
     private String isbn;
 
+    private String imageUrl;
+
     @ManyToOne
     @JoinColumn(name = "author_id")
     @JsonManagedReference

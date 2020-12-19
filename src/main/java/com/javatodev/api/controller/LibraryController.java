@@ -9,6 +9,7 @@ import com.javatodev.api.model.request.BookLendRequest;
 import com.javatodev.api.model.request.MemberCreationRequest;
 import com.javatodev.api.service.LibraryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,21 @@ public class LibraryController {
     @GetMapping("/book/{bookId}")
     public ResponseEntity<Book> readBook (@PathVariable Long bookId) {
         return ResponseEntity.ok(libraryService.readBook(bookId));
+    }
+
+    @GetMapping("/book/search")
+    public ResponseEntity readBooks (Pageable pageable) {
+        return ResponseEntity.ok(libraryService.readBooks(pageable));
+    }
+
+    @GetMapping("/book/search/sorting")
+    public ResponseEntity readBooksWithSorting (Pageable pageable) {
+        return ResponseEntity.ok(libraryService.readBooksWithSorting(pageable));
+    }
+
+    @GetMapping("/book/search/filter")
+    public ResponseEntity readBooksWithFilter (@RequestParam("query") String query, Pageable pageable) {
+        return ResponseEntity.ok(libraryService.filterBooks(query, pageable));
     }
 
     @PostMapping("/book")
@@ -80,6 +96,12 @@ public class LibraryController {
     @PostMapping("/book/lend")
     public ResponseEntity<List<String>> lendABook(@RequestBody BookLendRequest bookLendRequests) {
         return ResponseEntity.ok(libraryService.lendABook(bookLendRequests));
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Void> createBooks () {
+        libraryService.createBooks();
+        return ResponseEntity.ok().build();
     }
 
 }

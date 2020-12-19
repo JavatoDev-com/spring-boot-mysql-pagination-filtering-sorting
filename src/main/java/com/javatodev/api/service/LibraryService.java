@@ -5,18 +5,32 @@ import com.javatodev.api.model.request.AuthorCreationRequest;
 import com.javatodev.api.model.request.BookCreationRequest;
 import com.javatodev.api.model.request.BookLendRequest;
 import com.javatodev.api.model.request.MemberCreationRequest;
+import com.javatodev.api.model.response.BookResponseFromAPI;
+import com.javatodev.api.model.response.PaginatedBookResponse;
 import com.javatodev.api.repository.AuthorRepository;
 import com.javatodev.api.repository.BookRepository;
 import com.javatodev.api.repository.LendRepository;
 import com.javatodev.api.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,10 +157,62 @@ public class LibraryService {
         book.setIsbn(request.getIsbn());
         book.setName(request.getName());
         book.setAuthor(author.get());
+        book.setImageUrl(request.getImageUrl());
         return bookRepository.save(book);
     }
 
     public List<Member> readMembers() {
         return memberRepository.findAll();
+    }
+
+    public PaginatedBookResponse readBooks(Pageable pageable) {
+        Page<Book> books = bookRepository.findAll(pageable);
+        return PaginatedBookResponse.builder()
+                .numberOfItems(books.getTotalElements()).numberOfPages(books.getTotalPages())
+                .bookList(books.getContent())
+                .build();
+    }
+
+    public PaginatedBookResponse readBooksWithSorting(Pageable pageable) {
+//        Pageable pageableWithSorting = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+        Page<Book> books = bookRepository.findAll(pageable);
+        return PaginatedBookResponse.builder()
+                .numberOfItems(books.getTotalElements()).numberOfPages(books.getTotalPages())
+                .bookList(books.getContent())
+                .build();
+    }
+
+    public PaginatedBookResponse filterBooks(String name, Pageable pageable) {
+
+        Page<Book> books = bookRepository.findAllByNameContains(name, pageable);
+        return PaginatedBookResponse.builder()
+                .numberOfItems(books.getTotalElements()).numberOfPages(books.getTotalPages())
+                .bookList(books.getContent())
+                .build();
+    }
+
+    public void createBooks() {
+        RestTemplate restTemplate = new RestTemplate();
+        List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        converter.setSupportedMediaTypes(Collections.singletonList(MediaType.ALL));
+        messageConverters.add(converter);
+        restTemplate.setMessageConverters(messageConverters);
+        ResponseEntity<List<BookResponseFromAPI>> bookResponse =
+                restTemplate.exchange("https://raw.githubusercontent.com/bvaughn/infinite-list-reflow-examples/master/books.json",
+                        HttpMethod.GET, null, new ParameterizedTypeReference<List<BookResponseFromAPI>>() {
+                        });
+
+        List<BookResponseFromAPI> booksFromAPI = bookResponse.getBody();
+        booksFromAPI.forEach(book->{
+            Author author = authorRepository.findAll().get(0);
+            Book book1 = new Book();
+            book1.setImageUrl(book.getThumbnailUrl());
+            book1.setAuthor(author);
+            book1.setName(book.getTitle());
+            book1.setIsbn(book.getIsbn());
+            bookRepository.save(book1);
+        });
+
     }
 }
